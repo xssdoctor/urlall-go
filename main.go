@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"os/exec"
@@ -17,6 +18,13 @@ func main() {
 	for _, b := range out {
 		encoded = append(encoded, '%')
 		encoded = append(encoded, hex(b>>4), hex(b&0x0F))
+	}
+
+	copy := exec.Command("pbcopy")
+	copy.Stdin = bytes.NewReader(encoded)
+	if err := copy.Run(); err != nil {
+		fmt.Fprintf(os.Stderr, "pbcopy failed: %v\n", err)
+		os.Exit(1)
 	}
 
 	os.Stdout.Write(encoded)
